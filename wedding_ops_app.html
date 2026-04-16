@@ -1,0 +1,565 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0"><title>Wedding Ops v8.5 · 26 Apr 2026</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"><style>
+:root{--fs:14px;--bg:#F4F0E8;--card:#FAF8F2;--olive:#4A5A23;--sage:#9BA572;--ivory:#EBE6D6;--blush:#DEB8B8;--lav:#B5A0BE;--text:#3D3B30;--sub:#8A8474;--border:#D8D2C4;--red:#C0392B;--anchor-bg:#F5EDD4;--crit-bg:#F4E4E0;--flex-bg:#E8EFE0;--rest-bg:#F0EBD8;--pend-bg:#EDE8D4;--deep-lav:#7E6B8A;--warm-rose:#C4928E}
+@media(prefers-color-scheme:dark){:root{--bg:#F4F0E8;--text:#3D3B30;--card:#FAF8F2}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:light only;background:var(--bg)!important;color:var(--text)!important}
+body{font-family:'Outfit',sans-serif;background:var(--bg)!important;color:var(--text)!important;font-size:var(--fs);line-height:1.5;overscroll-behavior:none}
+div,span,input,button{color:inherit}
+body.fs-s{--fs:12px}body.fs-m{--fs:14px}body.fs-l{--fs:17px}body.fs-xl{--fs:20px}
+.clock{position:sticky;top:0;z-index:100;background:var(--deep-lav);color:#FFF;padding:6px 16px;display:flex;justify-content:space-between;align-items:center}
+.clock .left{display:flex;flex-direction:column}.clock .date{font-size:10px;opacity:.7;letter-spacing:.5px}.clock .march{font-size:11px;color:var(--blush);font-weight:500}
+.clock .time{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}.clock .right{text-align:right}
+.clock .phase-label{font-size:11px;opacity:.8}.clock .tools{display:flex;gap:8px;margin-top:2px}
+.clock .tbtn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.15);color:#FFF;border:none;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tabs{position:sticky;top:51px;z-index:99;background:var(--bg)!important;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 14px;font-size:calc(var(--fs) - 2px);font-weight:500;color:var(--sub);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
+.tab.active{color:var(--olive);border-bottom-color:var(--sage)}
+.search-bar{position:sticky;top:92px;z-index:98;padding:6px 16px;background:var(--bg)!important;border-bottom:1px solid var(--border);display:none}
+.search-bar.show{display:block}
+.search-bar input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:calc(var(--fs) - 1px);font-family:inherit;outline:none;background:var(--card)!important;color:var(--text)!important}
+.filter-bar{padding:6px 16px;background:var(--bg)!important;border-bottom:1px solid var(--border);display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-bar.show{display:block}
+.fbtn{display:inline-block;padding:3px 10px;margin:0 4px 4px 0;border-radius:14px;font-size:calc(var(--fs) - 3px);font-weight:500;background:var(--card);border:1px solid var(--border);color:var(--sub);cursor:pointer;transition:all .15s}
+.fbtn.active{background:var(--olive);color:#FFF;border-color:var(--olive)}
+.content{padding:0 0 80px}.page{display:none}.page.active{display:block}
+.sticky-phase{position:sticky;top:92px;z-index:97;background:var(--olive)!important;color:#FFF;padding:6px 16px;font-size:calc(var(--fs) - 2px);font-weight:600;letter-spacing:.5px;display:none;border-bottom:1px solid rgba(255,255,255,.1)}
+.sticky-phase.vis{display:block}
+.phase-wrap{margin-top:2px}
+.phase-hdr{background:var(--olive);color:#FFF;padding:8px 16px;font-size:calc(var(--fs) - 2px);font-weight:600;letter-spacing:1px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-radius:2px}
+.phase-hdr .arrow{transition:transform .2s;font-size:10px}
+.phase-wrap.closed .phase-hdr .arrow{transform:rotate(-90deg)}
+.phase-wrap:nth-of-type(even) .phase-hdr{background:var(--deep-lav)}
+.phase-body{overflow:hidden}
+.phase-wrap.closed .phase-body{display:none}
+.ev{display:flex;align-items:flex-start;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);position:relative;font-size:var(--fs);cursor:pointer;background:var(--card);color:var(--text)}
+.ev.alt{background:var(--bg)}
+.ev.hidden{display:none}
+.ev .t{width:42px;flex-shrink:0;font-size:calc(var(--fs) - 2px);font-weight:600;font-variant-numeric:tabular-nums;padding-top:2px}
+.ev .t.ctrl{color:#FFF}.ev .t.anchor{color:#8B7328}.ev .t.pend{color:var(--warm-rose)}
+.ev .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.ev .body{flex:1;min-width:0}
+.ev .task{font-size:calc(var(--fs) - 1px);font-weight:500;line-height:1.4}
+.ev[data-type="ctrl"]{background:#8B3A3A!important}
+.ev[data-type="ctrl"] .t,.ev[data-type="ctrl"] .task,.ev[data-type="ctrl"] .meta,.ev[data-type="ctrl"] .detail,.ev[data-type="ctrl"] .cd,.ev[data-type="ctrl"] .end-t{color:#FFF}
+.ev[data-type="ctrl"] .detail{background:rgba(0,0,0,.15)}
+.ev[data-type="anchor"]{background:var(--anchor-bg)!important}
+.ev[data-type="crit"]{background:var(--crit-bg)!important}
+.ev[data-type="flex"]{background:var(--flex-bg)!important}
+.ev[data-type="rest"]{background:var(--rest-bg)!important}
+.ev[data-type="pend"]{background:var(--pend-bg)!important}
+.ev .meta{font-size:calc(var(--fs) - 3px);color:var(--sub);margin-top:2px;line-height:1.4}
+.ev .detail{font-size:calc(var(--fs) - 3px);color:var(--text);margin-top:3px;display:none;line-height:1.5;padding:6px 8px;background:var(--ivory);border-radius:4px;border-left:3px solid var(--lav)}
+.ev .detail.show{display:block}
+.ev .od-list{display:none;margin-top:4px}
+.ev .od-list.show{display:block}
+.ev .od-item{padding:2px 8px;border-left:2px solid var(--lav);margin:2px 0;background:rgba(184,160,200,.08);border-radius:0 4px 4px 0;font-size:calc(var(--fs) - 3px);line-height:1.5}
+.ev .od-item .od-ow{color:var(--sage);font-weight:500}
+.ev .cd{font-size:calc(var(--fs) - 3px);color:var(--deep-lav);font-weight:500;margin-top:2px;display:none}.ev .cd.show{display:block}
+.ev .end-t{font-size:calc(var(--fs) - 3px);color:var(--sub);margin-left:auto;flex-shrink:0;padding-top:3px;opacity:.6}
+.time-line{position:absolute;left:0;right:0;height:2px;background:var(--warm-rose);z-index:50;pointer-events:none;opacity:.7}
+.time-line::before{content:"▸ NOW";position:absolute;left:4px;top:-9px;font-size:9px;font-weight:600;color:var(--warm-rose);background:var(--bg);padding:0 3px;border-radius:2px}
+.tea-section{padding:6px 16px;color:#FFF;font-size:calc(var(--fs) - 2px);font-weight:600;margin-top:2px;letter-spacing:.5px;border-bottom:2px solid rgba(0,0,0,.15)}
+.tea-row{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:var(--fs);background:var(--card);color:var(--text);cursor:pointer}
+.tea-row .seq{width:24px;text-align:center;font-weight:600;font-size:calc(var(--fs) - 2px);color:var(--sub);flex-shrink:0}
+.tea-row .name{flex:1;font-weight:500}
+.tea-row .cups{width:36px;text-align:center;font-size:calc(var(--fs) - 2px);color:var(--olive);font-weight:600}
+.tea-row .caller{font-size:calc(var(--fs) - 3px);color:var(--sub)}
+.tea-row .tnote{font-size:calc(var(--fs) - 4px);color:var(--deep-lav)}
+.tea-row.t1{background:var(--card)!important;border-left:4px solid var(--blush);color:var(--text)}
+.tea-row.done{opacity:.45;text-decoration:line-through}
+.tea-row .check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.tea-row .check.checked{background:var(--olive);border-color:var(--olive);color:#FFF}
+.tea-rule{padding:6px 16px;font-size:calc(var(--fs) - 3px);color:var(--sub);border-bottom:1px solid var(--border);line-height:1.6;background:var(--bg)}
+.photo-row{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer}
+.photo-row .wave{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--fs) - 3px);font-weight:600;color:#FFF;flex-shrink:0}
+.photo-row .wave.r1{background:var(--olive)}.photo-row .wave.r2{background:var(--deep-lav)}
+.photo-row .info{flex:1}.photo-row .group{font-size:calc(var(--fs) - 1px);font-weight:500}.photo-row .pmeta{font-size:calc(var(--fs) - 3px);color:var(--sub)}
+.photo-row .check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.photo-row .check.checked{background:var(--olive);border-color:var(--olive);color:#FFF}
+.photo-row.done{opacity:.45;text-decoration:line-through}
+.av-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--card);color:var(--text)}
+.av-row .cue{width:50px;font-size:calc(var(--fs) - 3px);font-weight:600;color:var(--deep-lav);flex-shrink:0;padding-top:2px}
+.av-row .seg{flex:1}.av-row .seg .stitle{font-size:calc(var(--fs) - 1px);font-weight:500}.av-row .seg .trigger{font-size:calc(var(--fs) - 3px);color:var(--sub)}
+.contact{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--card);color:var(--text)}
+.contact .avatar{width:32px;height:32px;border-radius:50%;color:#FFF;display:flex;align-items:center;justify-content:center;font-size:calc(var(--fs) - 1px);font-weight:600;flex-shrink:0}
+.contact .cinfo{flex:1}.contact .cname{font-size:calc(var(--fs) - 1px);font-weight:600}.contact .crole{font-size:calc(var(--fs) - 3px);color:var(--sub);line-height:1.4}
+.game-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--card);color:var(--text)}
+.game-row .gnum{width:24px;height:24px;border-radius:50%;background:var(--deep-lav);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:calc(var(--fs) - 3px);font-weight:600;flex-shrink:0}
+.game-row .ginfo{flex:1}.game-row .gname{font-size:calc(var(--fs) - 1px);font-weight:500}.game-row .gtime{font-size:calc(var(--fs) - 3px);color:var(--sub)}
+.mat-row{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--card);color:var(--text)}
+.mat-row.hidden{display:none}
+.mat-row .mid{width:40px;font-size:calc(var(--fs) - 3px);font-weight:600;color:var(--sage);flex-shrink:0}
+.mat-row .minfo{flex:1}.mat-row .mnm{font-size:calc(var(--fs) - 1px);font-weight:500}.mat-row .mow{font-size:calc(var(--fs) - 3px);color:var(--sub)}
+.mat-row .mfs{font-size:calc(var(--fs) - 3px);padding:2px 6px;border-radius:8px;flex-shrink:0;font-weight:500}
+.mat-row .mfs.keep{background:var(--flex-bg);color:var(--olive)}.mat-row .mfs.gone{background:var(--crit-bg);color:var(--warm-rose)}.mat-row .mfs.ret{background:var(--anchor-bg);color:#8B7328}
+.mat-row.done{opacity:.45;text-decoration:line-through}
+.mat-row .check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.mat-row .check.checked{background:var(--olive);border-color:var(--olive);color:#FFF}
+.sec-hdr{padding:10px 16px;font-size:calc(var(--fs) - 3px);font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:1px;background:var(--ivory);border-bottom:1px solid var(--border)}
+</style></head><body>
+<div class="clock"><div class="left"><div class="date">26 APR 2026 · GRAND HYATT POOLHOUSE</div><div class="march" id="march-cd"></div></div><div class="time" id="clock">--:--:--</div><div class="right"><div class="phase-label" id="phase-now">—</div><div class="tools"><button class="tbtn" id="btn-search" title="Search">🔍</button><button class="tbtn" id="btn-font" title="Text size">A</button></div></div></div>
+<div class="tabs" id="tabs"></div><div class="search-bar" id="search-bar"><input type="text" id="search-input" placeholder="搜尋任務 / 人名 / 物資..."></div><div class="filter-bar" id="filter-bar"></div><div class="sticky-phase" id="sticky-phase"></div><div class="content" id="content-wrap"></div><script>
+var VERSION="v8.5";
+var RB=[
+{p:"早上準備"},
+{s:"04:30",e:"05:00",ty:"task",tk:"MUA到場＋化妝房準備",ow:"MUA Lead",lo:"化妝房",nt:"3位化妝師，房間係酒店房，唔係Poolhouse",tr:"✓",ao:"小燕 晴 曉婷",od:[{"t":"檢查化妝房燈光夠唔夠亮，同攝影師確認","o":"MUA Lead (backup:攝影師)"},{"t":"派襟花同手花（如果有嘅話）","o":"小燕"},{"t":"檢查套房同化妝房有冇遺漏","o":"顏+晴"},{"t":"確認晴+曉婷+顏到場（最早05:00，化妝前10分鐘到）","o":"小燕"}]},
+{s:"05:00",e:"05:30",ty:"task",tk:"新娘起身＋媽媽起身",ow:"新娘＋小燕",lo:"家/酒店",nt:"05:00起身。兩位媽媽敬茶前要著褂",ao:"Jonathan 小燕 新娘 新郎 晴 曉婷 聲 速",od:[{"t":"準備新娘新郎早餐","o":"小燕"},{"t":"晴+曉婷+顏早餐：統一叫外賣。Jonathan+速早餐：統一叫外賣。同時幫兩位媽媽叫早餐。聲統籌","o":"聲 (backup:速)"}]},
+{s:"05:00",e:"07:30",ty:"crit",tk:"新娘全妝＋髮型＋著裙褂",ow:"MUA Lead",lo:"化妝房",nt:"05:00–07:30，共2.5小時，全日最重要",tr:"✓",lk:1,ao:"小燕 新娘 曉婷",od:[{"t":"幫新娘著裙褂（拉鏈、扣鈕、配飾）","o":"小燕 (backup:曉婷)"}]},
+{s:"05:00",e:"05:45",ty:"task",tk:"MUA #2 → 媽媽A 化妝+set頭",ow:"MUA #2",lo:"化妝房",nt:"45分鐘。化妝+set頭完要著褂（敬茶前）",ao:""},
+{s:"05:00",e:"05:45",ty:"task",tk:"MUA #3 → 媽媽B 化妝+set頭",ow:"MUA #3",lo:"化妝房",nt:"45分鐘。化妝+set頭完要著褂（敬茶前）",ao:""},
+{s:"05:30",e:"06:00",ty:"crit",tk:"新郎起身",ow:"Jonathan",lo:"家/酒店",nt:"需要escalation確認起身",ao:"Jonathan 新郎"},
+{s:"05:45",e:"06:15",ty:"task",tk:"MUA #2 → 小燕 set頭",ow:"MUA #2",lo:"化妝房",nt:"30分鐘",ao:"小燕"},
+{s:"05:45",e:"06:30",ty:"task",tk:"MUA #3 → 盧 化妝+set頭",ow:"MUA #3",lo:"化妝房",nt:"45分鐘",ao:"盧"},
+{s:"06:00",e:"06:30",ty:"task",tk:"敬茶物資準備",ow:"速",lo:"化妝房/套房",nt:"紅瓦杯8隻酒店提供，其餘自備紅紙杯",ao:"Mason 晴 速",od:[{"t":"最後檢查敬茶物資：茶具、紅瓦杯(8隻)、紅紙杯、紅棗蓮子、跪墊、熱水壺","o":"速"},{"t":"遊戲完之後清理現場，準備敬茶","o":"晴+顏"},{"t":"敬茶通常冇音樂。想播可以駁電視，playlist待定","o":"Mason"}]},
+{s:"06:15",e:"06:15",ty:"task",tk:"06:15早餐統一落單（含兩位媽媽）",ow:"聲",lo:"化妝房",nt:"06:15統一落單（唔係食嘅時間）。包括姊妹、兄弟、兩位媽媽三邊。晴+曉婷+顏喺Jonathan+速 BTS期間食，Jonathan+速BTS後、08:15前食",ao:"Jonathan 晴 曉婷 聲 速"},
+{s:"06:15",e:"06:45",ty:"task",tk:"MUA #2 → 新郎 set頭",ow:"MUA #2",lo:"化妝房",nt:"30分鐘",ao:"新郎"},
+{s:"06:30",e:"07:00",ty:"task",tk:"MUA #3 → 曉婷 set頭",ow:"MUA #3",lo:"化妝房",nt:"30分鐘·MUA #3完成",ao:"曉婷"},
+{s:"06:30",e:"07:00",ty:"task",tk:"開工利是派俾crew",ow:"聲",lo:"化妝房",nt:"聲負責派俾所有crew（化妝師、攝影、攝錄等）",ao:"Jonathan Mason 小燕 新娘 新郎 晴 曉婷 聲 速",od:[{"t":"派開工利是","o":"聲 (backup:速)"},{"t":"新娘派利是俾晴+曉婷+顏","o":"新娘 (backup:小燕)"},{"t":"新郎派利是俾Jonathan+速","o":"新郎 (backup:Mason)"}]},
+{s:"06:45",e:"07:30",ty:"task",tk:"MUA #2 → Grace 化妝+set頭",ow:"MUA #2",lo:"化妝房",nt:"45分鐘·全部07:30 release",ao:"Grace"},
+{s:"06:45",e:"07:15",ty:"photo",tk:"兄弟花絮拍攝（30分鐘）",ow:"攝影師",lo:"新郎房/走廊",nt:"06:45新郎ready，時間彈性",ao:"Jonathan 新娘 新郎 晴 曉婷 速",od:[{"t":"06:00-06:30 新娘同晴+曉婷+顏花絮拍攝","o":"攝影師"},{"t":"07:30 Jonathan+速花絮拍攝","o":"攝影師"},{"t":"全日用手機影花絮短片","o":"晴"}]},
+{s:"06:45",e:"07:30",ty:"task",tk:"Auntie Grace MUA化妝+set頭",ow:"MUA #2",lo:"化妝房",nt:"MUA #2負責，45分鐘，07:30前完成",ao:"Auntie Grace Grace",od:[{"t":"Auntie Grace喊下一組入場，講祝福說話（男家）","o":"Auntie Grace"}]},
+{s:"06:45",e:"",ty:"task",tk:"新郎派利是俾Jonathan+速",ow:"新郎",ao:"Jonathan 新郎 速"},
+{s:"07:15",e:"",ty:"task",tk:"兄弟檢查套房敬茶準備",ow:"Jonathan+速",nt:"檢查茶具、杯、跪墊、熱水壺就位。未ready就搵酒店butler/樓面經理跟進",ao:"Jonathan 速"},
+{s:"07:30",e:"",ty:"task",tk:"新娘派利是俾晴+曉婷+顏",ow:"新娘",ao:"新娘 晴 曉婷"},
+{p:"接新娘"},
+{s:"08:15",e:"08:15",ty:"anchor",tk:"⏰ 新郎到達門口",ow:"Jonathan+速",lo:"套房走廊",ao:"Jonathan 新郎 速"},
+{s:"08:15",e:"08:20",ty:"task",tk:"拆紅絲帶＋開門利是",ow:"Jonathan+速",lo:"門口",ao:"Jonathan 速"},
+{s:"08:20",e:"08:40",ty:"task",tk:"開門遊戲（✓20min）",ow:"晴+曉婷+顏（遊戲統籌）",lo:"走廊",tr:"✓",ao:"晴 曉婷",od:[{"t":"逐個準備，玩完一個先準備下一個","o":"晴+曉婷"}]},
+{s:"08:40",e:"08:45",ty:"task",tk:"愛的宣言＋入房",ow:"新郎",lo:"套房",ao:"新郎",od:[{"t":"新郎入房嘅moment由攝影師管理（花球遞交、見面）","o":"攝影師"}]},
+{s:"08:45",e:"08:45",ty:"ctrl",tk:"⛔ 遊戲硬性截止",ow:"Mason",tr:"✓",ao:"Mason"},
+{p:"敬茶（早上）"},
+{s:"08:30",e:"08:30",ty:"prep",tk:"女家親戚call time（唔改）",nt:"親戚照舊08:30到，預鬆啲防遲到",ao:""},
+{s:"08:45",e:"08:45",ty:"anchor",tk:"⏰ 女家敬茶開始",ow:"匡(caller)",lo:"套房",nt:"匡做caller，08:45正式開始",ao:"匡"},
+{s:"08:45",e:"09:15",ty:"crit",tk:"女家敬茶（5組·~30min）",ow:"匡(caller)",lo:"套房",nt:"父母10分鐘，其餘5分鐘。詳細流程見敬茶tab",ao:"Mason 匡 新娘 新郎 速",od:[{"t":"開始前最後check：茶具、杯、熱水、跪墊就位","o":"速"},{"t":"酒店butler煲水、擺好紅瓦杯同紙杯、放蓮子紅棗","o":"酒店butler(速 support)"},{"t":"匡喊下一組入場，講祝福說話（女家全程）","o":"匡"},{"t":"確保下兩組親戚已經喺門口等緊，由兩位媽媽負責通知","o":"新娘/新郎媽媽 (backup:caller)"},{"t":"Mason控制套房入面人數，唔好太迫，上限15人","o":"Mason"}]},
+{s:"09:10",e:"09:15",ty:"task",tk:"金器貼label＋利是歸檔（金器留喺新娘身上）",ow:"速＋盧",lo:"套房",nt:"速+盧貼名登記。金器暫時留喺新娘身上，到男家敬茶完（~10:35）先一次過收返",ao:"Mason 小燕 新娘 曉婷 盧 速",od:[{"t":"金器即刻貼名、數清楚，利是寫低邊家邊組","o":"速＋盧"},{"t":"金器只係影相嗰一刻戴下，影完即刻交俾速同盧存入文件袋，唔好戴住","o":"小燕 (backup:曉婷)"},{"t":"金器交接：長輩俾新人→速同盧貼名入袋→小燕保管","o":"速 (backup:Mason)"},{"t":"中途check：利是箱安全、金器袋安全、laptop正常","o":"Mason"}]},
+{s:"09:15",e:"09:15",ty:"prep",tk:"男家親戚call time（唔改）",nt:"親戚09:15到，預鬆啲防遲到",ao:""},
+{s:"09:20",e:"09:20",ty:"ctrl",tk:"⛔ 女家檢查點",ow:"Mason",nt:"超時嘅推去午宴補敬茶",ao:"Mason"},
+{s:"09:45",e:"09:45",ty:"anchor",tk:"⏰ 男家敬茶開始",ow:"Auntie Grace·(caller)",lo:"套房",nt:"Auntie Grace做caller，09:45開始",ao:"Auntie Grace Grace"},
+{s:"09:45",e:"10:40",ty:"crit",tk:"男家敬茶（10組·~55min）",ow:"Auntie Grace",lo:"套房",nt:"Grace姨姨組起由匡接手。詳細流程見敬茶tab",ao:"Auntie Grace Grace 匡 晴 曉婷 速",od:[{"t":"敬茶後：butler收杯茶具，速收跪墊文件袋，晴+顏執房","o":"速 (backup:曉婷)"},{"t":"Auntie Grace趁敬茶期間去化妝","o":"MUA #2/#3"}]},
+{s:"10:35",e:"10:40",ty:"task",tk:"金器全部收返＋入袋",ow:"速＋盧",lo:"套房",nt:"男家敬茶完，新娘身上所有金器一次過收返，速+盧入文件袋",ao:"新娘 盧 速"},
+{s:"10:40",e:"10:45",ty:"flex",tk:"男家合照",ow:"攝影師",lo:"套房",ao:""},
+{s:"10:45",e:"10:45",ty:"ctrl",tk:"⛔ 早上敬茶結束",ow:"Lan",nt:"做唔完嘅推去午宴補敬茶",ao:"Lan"},
+{s:"10:45",e:"11:00",ty:"task",tk:"出門：公眾走廊紅傘步行",ow:"新郎＋新娘",lo:"公眾走廊→11/F Poolhouse",nt:"敬茶後乘lift去11/F。於前往Poolhouse途中公眾走廊拍紅傘步行片段+相。不撒米。symbolic only",ao:"小燕 新娘 新郎 晴 曉婷",od:[{"t":"拎紅傘幫新娘遮住","o":"小燕 (backup:曉婷)"},{"t":"出門之後收返紅傘、清理","o":"顏+晴"},{"t":"symbolic出門：乘lift到11/F","o":"新郎＋新娘"},{"t":"11/F lift到達後行公眾走廊，新郎撐紅傘同新娘步行","o":"新郎＋新娘＋小燕"},{"t":"攝影師+攝錄師沿途拍紅傘步行片段+相","o":"攝影師＋攝錄師"},{"t":"不撒米（酒店唔准·symbolic only）","o":"—"},{"t":"到達Poolhouse後收返紅傘","o":"晴+顏"}]},
+{p:"過渡"},
+{s:"10:45",e:"11:30",ty:"task",tk:"Poolhouse MUA準備（新娘轉妝/晚裝用）",ow:"MUA Lead",lo:"Poolhouse新娘房",nt:"MUA Lead轉移到Poolhouse新娘房，準備午宴轉妝及晚裝change",lk:2,ao:"新娘"},
+{s:"09:00",e:"10:45",ty:"task",tk:"Poolhouse場地佈置（decor team施工）",ow:"Decor team",lo:"Poolhouse",nt:"decor team 09:00開始施工。8枱佈置、拱門、花藝。Lan 10:45後到場檢查",ao:"Lan"},
+{s:"10:45",e:"11:30",ty:"task",tk:"Poolhouse場地檢查＋最終確認",ow:"Lan",lo:"Poolhouse",nt:"Lan到場後檢查佈置完成度。聲+速協助AV。晴check簽到處。確認一切ready",ao:"Jonathan Lan Mason 小燕 新娘 晴 聲 速",od:[{"t":"化妝房設置（用酒店standard room，唔係Poolhouse）","o":"MUA Lead"},{"t":"準備Poolhouse新娘房","o":"小燕"},{"t":"帶齊所有嘢去Poolhouse：證件、筆、證書、戒指、花球⋯","o":"Mason"},{"t":"將花球帶去Poolhouse","o":"小燕"},{"t":"確認晚裝衣袋已經喺Poolhouse新娘房","o":"小燕"},{"t":"Library賓客移去Poolhouse（Jonathan+晴支援，賓客主要自己行）","o":"Jonathan+晴"},{"t":"檢查Poolhouse有冇遺漏","o":"Jonathan+速 (backup:Mason)"},{"t":"酒店seating plan同easel setup確認（Lan 10:45到場後做·之前Mason","o":"Lan（10:45後）"}]},
+{s:"10:45",e:"11:30",ty:"task",tk:"簽到處準備",ow:"晴",lo:"Poolhouse",nt:"晴到場後set好簽到處。Lan 10:45到場後check。酒店staff協助",ao:"Lan 晴 曉婷",od:[{"t":"檢查簽到處：枱號牌、簽名簿、筆、利是箱、指示牌","o":"晴"},{"t":"簽名筆擺喺簽到處（Lan準備，曉婷擺好，酒店有後備筆）","o":"Lan→曉婷"}]},
+{s:"10:45",e:"11:30",ty:"task",tk:"證人身份核實",ow:"Mason",lo:"Poolhouse",nt:"Mason搵兩位爸爸做證人。HKID×4全日由Mason保管",ao:"Mason",od:[{"t":"搵人帶兩位爸爸去Mason度核實身份證（HKID全日由Mason保管）","o":"?待指定"}]},
+{s:"10:45",e:"11:00",ty:"flex",tk:"酒店內景快拍",ow:"攝影師",lo:"Grand Hyatt",nt:"新郎同Jonathan+速影。時間唔夠就cut",ao:"Jonathan 新郎 速"},
+{s:"11:00",e:"11:15",ty:"task",tk:"Auntie Grace到場＋文件＋認親戚",ow:"Mason＋Lan＋Kenneth",lo:"Poolhouse",nt:"Auntie Grace核對文件，Lan同Kenneth認親戚",ao:"Auntie Grace Grace Kenneth Lan Mason",od:[{"t":"Lan同Kenneth背親戚名，教helpers認人","o":"Lan＋Kenneth"}]},
+{s:"11:00",e:"11:30",ty:"task",tk:"水彩畫家到場",ow:"Lan",lo:"Poolhouse",nt:"11:30開始計4小時。Lan 10:45到場接手，之前Mason代管",ao:"Jonathan Lan Mason 晴",od:[{"t":"晴四圍走：迎賓打招呼、合照支援、水彩畫相關雜項、流動支援","o":"晴 (backup:Mason)"},{"t":"引導賓客去水彩畫攤位，幫手tracking名額","o":"晴"},{"t":"睇住水彩畫名額（55-70人），夠數就掛牌","o":"顏+Jonathan"}]},
+{s:"11:30",e:"12:15",ty:"task",tk:"賓客到場＋簽到",ow:"曉婷＋小燕",lo:"Poolhouse",nt:"曉婷＋小燕收人情，盧登記。晴四圍走。Lan後台統籌。Lan到場前唔開始收人情",tr:"✓",ao:"Jonathan Lan 小燕 新娘 新郎 晴 曉婷 盧 聲 速",od:[{"t":"晴四圍走：迎賓打招呼、合照支援、水彩畫相關雜項、流動支援","o":"晴"},{"t":"核對賓客名單","o":"曉婷 (backup:小燕)"},{"t":"引導賓客簽名","o":"顏"},{"t":"曉婷同小燕喺前台收人情，盧負責登記","o":"曉婷＋小燕 (backup:盧)"},{"t":"安排crew午餐","o":"聲 (backup:速)"},{"t":"如果有賓客堅持要畫，由顏或Jonathan直接同佢溝通處理","o":"顏+Jonathan"},{"t":"如果新人想額外畫多啲賓客，$50一位，要提前通知畫家","o":"新娘+新郎"},{"t":"身份不明：酒店staff問中文名，可備相簿認人","o":"Jonathan+晴"}]},
+{p:"迎賓＋午宴"},
+{s:"11:30",e:"15:30",ty:"task",tk:"水彩畫家（4小時）",ow:"畫家",lo:"Poolhouse",nt:"55-70人頭名額，夠數就掛「名額已滿」牌",tr:"✓",ao:""},
+{s:"11:30",e:"12:15",ty:"rest",tk:"新娘休息＋最後準備",ow:"小燕＋曉婷",lo:"Poolhouse新娘房",nt:"45分鐘，食少少嘢休息下",ao:"小燕 新娘 曉婷"},
+{s:"12:10",e:"12:15",ty:"task",tk:"進場前5分鐘提醒",ow:"MC2 Kenneth",lo:"Poolhouse",nt:"Kenneth叫賓客入座",ao:"Kenneth Mason 匡",od:[{"t":"進場前5分鐘提醒，MC叫賓客入座","o":"MC1 匡 (backup:Mason)"}]},
+{s:"12:15",e:"12:15",ty:"anchor",tk:"⏰ 第一次進場 12:15",ow:"MC1 匡",lo:"Poolhouse",nt:"唔可以遲",tr:"✓",ao:"Jonathan Mason 匡 小燕",od:[{"t":"最後check：花球、配飾、妝容、mic、AV、蛋糕、交杯酒","o":"Mason (backup:小燕)"},{"t":"12:15之後遲到嘅賓客，靜靜引導入座","o":"Jonathan"}]},
+{s:"12:15",e:"12:20",ty:"task",tk:"第一次進場：爸爸帶新娘",ow:"MC1 匡",lo:"Poolhouse",tr:"✓",ao:"匡 新娘"},
+{s:"12:20",e:"12:25",ty:"task",tk:"MC intro",ow:"MC2 Kenneth",lo:"Poolhouse",nt:"Kenneth做MC intro",ao:"Jonathan Kenneth Mason",od:[{"t":"播成長片段（Mason操作MacBook）","o":"Mason (backup:Jonathan)"}]},
+{s:"12:25",e:"12:35",ty:"task",tk:"證婚儀式（Auntie Grace主持）",ow:"Auntie Grace·(證婚人)",lo:"Poolhouse台",nt:"需要2支無線mic",ao:"Auntie Grace Grace Mason",od:[{"t":"Mason核實兩位爸爸身份證（全日由Mason保管所有HKID×4）","o":"Mason"}]},
+{s:"12:35",e:"12:40",ty:"task",tk:"證書合照→律師離場",ow:"MC2 Kenneth",lo:"Poolhouse台",nt:"structured",ao:"Auntie Grace Grace Kenneth 匡",od:[{"t":"證書合照之後Auntie Grace離開台area","o":"MC1 匡"}]},
+{s:"12:40",e:"12:45",ty:"task",tk:"第二次進場：新郎帶新娘",ow:"MC1 匡",lo:"Poolhouse",nt:"播Music cue #2",ao:"Mason 匡 新娘 新郎",od:[{"t":"第二次進場cue：新郎帶新娘入場","o":"MC1 匡 (backup:Mason)"}]},
+{s:"12:45",e:"13:00",ty:"task",tk:"切餅→祝酒→交杯→拋花球",ow:"MC1 匡",lo:"Poolhouse台",nt:"連續做唔好斷。蛋糕刀就位，交杯酒喺台上。交杯後即拋假花球",ao:"Mason 匡",od:[{"t":"MC叫單身女士出嚟拋花球","o":"MC1 匡"},{"t":"蛋糕推出位置就位、刀準備好","o":"酒店樓面經理 (backup:Mason)"},{"t":"確認交杯酒杯同酒已經喺台上","o":"Mason"}]},
+{s:"13:00",e:"13:10",ty:"task",tk:"新人致辭＋完場",ow:"MC2 Kenneth",lo:"Poolhouse",nt:"簡短收結",ao:"Kenneth"},
+{s:"13:10",e:"13:10",ty:"ctrl",tk:"⛔ Opening結束＋上菜",ow:"MC2 Kenneth",nt:"通知樓面經理上菜",ao:"Kenneth"},
+{s:"13:10",e:"13:45",ty:"task",tk:"第1-3道菜＋成長片段播放",ow:"酒店樓面經理",lo:"Poolhouse",nt:"成長片段4分鐘，食緊嘢播",ao:""},
+{s:"13:10",e:"13:30",ty:"task",tk:"補敬茶（固定3組·caller=匡）",ow:"匡",lo:"Poolhouse側區",nt:"①Teresa表姨媽+Alex姨丈（須12:00前到場）②大姨 ③平姨。趁合照空檔做",ao:"Mason 匡 速",od:[{"t":"引導Teresa表姨媽(須12:00前到)同延後到嘅親戚去側區做補敬茶","o":"速"},{"t":"執行補敬茶（匡做caller）","o":"匡 (backup:Mason)"}]},
+{s:"13:30",e:"13:50",ty:"task",tk:"午宴合照第一輪（家庭親戚）",ow:"攝影師",lo:"Poolhouse",nt:"匡同Kenneth叫人。長輩先",ao:"Kenneth 匡",od:[{"t":"匡同Kenneth叫合照第一輪（家庭親戚）","o":"匡＋Kenneth"}]},
+{s:"13:45",e:"14:15",ty:"task",tk:"第4-6道菜",ow:"酒店樓面經理",lo:"Poolhouse",ao:""},
+{s:"14:15",e:"14:45",ty:"task",tk:"敬酒",ow:"新郎",lo:"Poolhouse",nt:"聲幫手",ao:"Mason 新郎 聲",od:[{"t":"敬酒路線規劃：VIP枱先，然後順序行","o":"Mason (backup:聲)"}]},
+{s:"14:15",e:"14:35",ty:"task",tk:"午宴合照第二輪（朋友）",ow:"攝影師",lo:"Poolhouse",nt:"同敬酒同步進行",ao:"Kenneth 匡",od:[{"t":"匡同Kenneth叫合照第二輪（朋友）","o":"匡＋Kenneth"}]},
+{s:"14:15",e:"15:00",ty:"task",tk:"新娘換晚裝（第3套）",ow:"MUA Lead",lo:"Poolhouse新娘房",nt:"45分鐘。15:00前完成就可以致辭",lk:3,ao:"小燕 新娘",od:[{"t":"新娘換晚裝（第3套），小燕幫手，MUA 45分鐘","o":"小燕 (backup:MUA Lead)"}]},
+{s:"14:45",e:"15:10",ty:"task",tk:"尾菜＋甜品",ow:"酒店樓面經理",lo:"Poolhouse",ao:""},
+{s:"15:00",e:"15:10",ty:"flex",tk:"新人感謝致辭（晚裝）",ow:"MC1 匡",lo:"Poolhouse",nt:"簡短溫馨就好",lk:3,ao:"匡 新娘 新郎",od:[{"t":"準備感謝致辭稿同提示卡","o":"新娘+新郎"}]},
+{s:"15:10",e:"15:30",ty:"flex",tk:"送客",ow:"新娘+新郎",lo:"Poolhouse出口",ao:"新娘 新郎"},
+{s:"15:30",e:"15:30",ty:"ctrl",tk:"⛔ 活動結束（場地09:00-16:00）",ow:"Lan",lo:"Poolhouse",tr:"✓",ao:"Lan"},
+{s:"?",e:"?",ty:"pend",tk:"大合照（證婚後？待確認）",ow:"MC1 匡",lo:"Poolhouse",nt:"timing TBC。可能證婚儀式後做，需問攝影師",ao:"Kenneth Mason 匡",od:[{"t":"匡同Kenneth對流程：雙進場、MC稿","o":"Mason"},{"t":"大合照（進場前）","o":"攝影師 (backup:MC匡+Kenneth)"}]},
+{p:"收場"},
+{s:"15:00",e:"15:30",ty:"task",tk:"個人物品檢查",ow:"晴+顏+Jonathan+速",lo:"各處",nt:"檢查套房、化妝房、Poolhouse有冇遺漏",ao:"Jonathan 晴 速"},
+{s:"15:15",e:"15:30",ty:"task",tk:"利是箱收好＋點數",ow:"速＋盧",lo:"Poolhouse",nt:"收好利是箱，點清數目",ao:"晴 盧 速",od:[{"t":"利是箱收好，數清楚","o":"速＋盧"},{"t":"檢查銀包、電話、充電器","o":"顏+晴"}]},
+{s:"15:15",e:"15:30",ty:"task",tk:"金器袋收好",ow:"速",lo:"Poolhouse",nt:"收好金器袋。Mason backup",ao:"Mason 速",od:[{"t":"金器袋收好","o":"速 (backup:Mason)"}]},
+{s:"15:15",e:"15:30",ty:"task",tk:"租借物品歸還",ow:"小燕",lo:"Poolhouse",nt:"核對裙褂、婚紗等租借品",ao:"小燕",od:[{"t":"核對租借物品歸還清單（裙褂、婚紗等）","o":"小燕"}]},
+{s:"15:15",e:"15:30",ty:"task",tk:"確認利是全部派晒",ow:"聲",nt:"確認所有利是派晒",ao:"聲",od:[{"t":"確認所有vendor利是已經派晒","o":"聲"}]},
+{s:"15:30",e:"",ty:"task",tk:"人情合計",ow:"Lan",nt:"前台收嘅加家長直收嘅，合計。家長嗰份要補登記",ao:"Lan Mason",od:[{"t":"家長直接收嘅利是要補返登記","o":"家長 (backup:Lan)"},{"t":"人情最終合計：前台收嘅加家長收嘅","o":"Lan (backup:Mason)"}]},
+{s:"15:30",e:"",ty:"task",tk:"Vendor結算",ow:"Mason",nt:"Mason負責即日結算",ao:"Mason",od:[{"t":"Mason負責同所有vendor結清尾數","o":"Mason"}]},
+{s:"15:30",e:"",ty:"ctrl",tk:"⬜ 收場最終確認",ow:"Mason",lo:"Poolhouse",nt:"所有嘢都收齊先走得",ao:"Mason",od:[{"t":"收場最後確認：所有物品、租借品同個人嘢都收齊","o":"Mason"}]},
+];
+var TEA_B=[
+{seq:1,tier:"T1",name:"新娘父母",cups:2,caller:"匡",note:"📷 tea photo + closer family sh"},
+{seq:2,tier:"T1",name:"姑婆",cups:1,caller:"匡",note:"📷 tea photo + closer shot (cor"},
+{seq:3,name:"姑媽＋姑丈",cups:2,caller:"匡",note:"📷 tea photo"},
+{seq:4,name:"三叔＋三嬸",cups:2,caller:"匡",note:"📷 tea photo"},
+{seq:5,name:"姑姐",cups:1,caller:"匡",note:"📷 tea photo"},
+];
+var TEA_G=[
+{seq:1,tier:"T1",name:"新郎父母",cups:2,caller:"Auntie Grace",note:"📷 tea photo + closer family sh"},
+{seq:2,name:"伯父＋伯娘",cups:2,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:3,name:"三叔＋三嬸",cups:2,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:4,name:"麒舅父",cups:1,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:5,name:"文舅父",cups:1,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:6,name:"Betty姨姨＋柱姨丈",cups:2,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:7,name:"漢舅父",cups:1,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:8,name:"Finnie姨姨＋泰姨丈",cups:2,caller:"Auntie Grace",note:"📷 tea photo"},
+{seq:9,name:"Grace姨姨＋Simon姨丈",cups:2,caller:"匡",note:"📷 tea photo"},
+];
+var TEA_S=[
+{seq:1,name:"新郎方：Teresa表姨媽(須12:00前到)+Alex姨丈",cups:2,caller:"匡",note:"✓confirmed·須12:00前到場·新郎方·📷 tea"},
+{seq:2,name:"大姨",cups:1,caller:"匡",note:"新娘方·下午·📷 tea photo"},
+{seq:3,name:"平姨",cups:1,caller:"匡",note:"新娘方·下午·📷 tea photo"},
+{seq:4,name:"（新郎方auntie·如延後）",cups:1,caller:"匡",note:"如有延後from男家·新郎方"},
+];
+var TEA_CHOREO=[
+"補敬茶：新郎方 Teresa表姨媽＋Alex姨丈；新娘方 大姨、平姨。Teresa表姨媽須於12:00前到達。安排於午宴開始後、合照前空檔進行。caller＝匡",
+"S",
+"S",
+"S",
+"S",
+"▸ 每組流程",
+"① 匡/Auntie Grace喊下一組",
+"② 下兩組親戚喺門口等（兩位媽媽負責通知）",
+"③ 新人就位、跪墊擺好",
+"④ 酒店butler斟茶、放蓮子紅棗",
+"⑤ butler將茶遞俾新人",
+"⑥ 新人敬茶",
+"⑦ 長輩回禮：說好話、派利是、送金器",
+"⑧ 攝影師影完成相",
+"⑨ 速+盧即刻幫金器貼名、利是寫低邊家邊組",
+"⑩ 金器影完即存入文件袋（唔戴住）",
+"⑪ 該組退場",
+"⑫ butler洗杯reset，準備下一組",
+"▸ 邊個做咩",
+"匡：女家全程做caller。男家Grace姨姨組起接手做caller",
+"Auntie Grace：男家caller（到Grace姨姨組之前）",
+"酒店butler：全程負責斟茶、遞茶、洗杯、蓮子紅棗",
+"速：敬茶統籌、金器貼名點數、利是記號",
+"盧：金器登記、利是登記、配合速",
+"小燕+盧：新娘側時間控制",
+"Mason：套房人數上限15人、超時決策",
+"攝影師：每組影tea photo，核心長輩可加closer shot",
+"▸ 金器同利是點處理",
+"收到即貼名→數清→存入文件袋",
+"金器只係影相嗰一刻戴，影完即交速+盧入袋",
+"交接順序：長輩→新人→速+盧貼名→文件袋→小燕保管",
+"▸ 場控",
+"兩位媽媽負責通知下兩組親戚準備",
+"完成嗰組即刻退場，唔好留喺套房",
+"Mason控制套房入面人數，上限15人",
+"父母用紅瓦杯（酒店8隻），其他組用紅紙杯（用完即棄）",
+"Grace姨姨組+Albert舅父組：匡代喊",
+"▸ 出門",
+"女家敬茶完成",
+"全組乘lift去11/F",
+"Lift到11/F後行公眾走廊向Poolhouse方向",
+"途中新郎新娘撐紅傘同行",
+"小燕拎紅傘，幫新娘遮住",
+"攝影師/攝錄師沿途拍步行片段+相",
+"不撒米（symbolic only）",
+"到達Poolhouse後收返紅傘",
+"①新郎方：Teresa表姨媽+Alex姨丈（須12:00前到場）",
+"②新娘方：大姨",
+"③新娘方：平姨",
+"caller=匡",
+];
+var PHOTO=[
+{w:"R1",n:1,g:"新人",sz:"2"},
+{w:"R1",n:2,g:"四大長老（兩對父母）",sz:"4",el:1},
+{w:"R1",n:3,g:"男家主家+妹",sz:"5",el:1},
+{w:"R1",n:4,g:"女家主家+哥",sz:"5",el:1},
+{w:"R1",n:5,g:"男家爸爸親戚（伯父伯娘·三叔三嬸）",sz:"~6",el:1,lv:1},
+{w:"R1",n:6,g:"男家媽媽親戚（舅父×4·姨姨×3·Albert）",sz:"~10",el:1,lv:1},
+{w:"R1",n:7,g:"女家爸爸親戚（姑婆·姑媽·三叔·姑姐）",sz:"~6",el:1,lv:1},
+{w:"R1",n:8,g:"女家媽媽親戚（大姨·平姨·Teresa）",sz:"~4",el:1,lv:1},
+{w:"R2",n:9,g:"晴+曉婷+顏+Jonathan+速（全體helpe",sz:"10"},
+{w:"R2",n:10,g:"朋友·同事（分枱call）",sz:"varies",lv:1},
+];
+var AV=[
+{c:"AV-01",s:"迎賓",t:"11:30",d:"BGM",o:"樓面經理"},
+{c:"AV-02",s:"進場#1",t:"12:15 新娘爸爸帶新娘",d:"音樂#1",o:"樓面經理"},
+{c:"AV-03",s:"證婚",t:"12:20",d:"soft piano",o:"樓面經理"},
+{c:"AV-04",s:"進場#2",t:"12:35 新郎帶新娘",d:"音樂#2",o:"樓面經理"},
+{c:"AV-05",s:"切蛋糕→祝酒→交杯",t:"12:45 連貫",d:"連貫音樂",o:"樓面經理"},
+{c:"AV-06",s:"致辭",t:"12:55",d:"mic",o:"樓面經理"},
+{c:"AV-07",s:"上菜BGM",t:"13:10",d:"dining BGM",o:"樓面經理"},
+{c:"AV-08",s:"Mini video",t:"13:10-13:45（第1-3道菜期間",d:"短片",o:"樓面經理"},
+{c:"AV-09",s:"送客",t:"15:10",d:"音樂",o:"樓面經理"},
+{c:"AV-10",s:"敬酒",t:"~14:15",d:"無需AV",o:"—"},
+{c:"AV-11",s:"新人感謝",t:"~15:00 (晚裝look)",d:"mic",o:"樓面經理"},
+];
+var CON=[
+{n:"Lan",r:"#2 午宴統籌·backend人情·Lan到場後接手",c:"#4A5A23"},
+{n:"Mason",r:"#1 最終決策·執行控制·場地·whole-day統籌·suite access對接(男家)·refreshment e",c:"#7E6B8A"},
+{n:"小燕",r:"#3 新娘貼身·bride-side TK(+盧)·front人情(with曉婷)",c:"#B5A0BE"},
+{n:"匡",r:"MC1/女家tea caller/合照caller",c:"#9BA572"},
+{n:"Kenneth",r:"MC2/structured script/合照caller",c:"#C4928E"},
+{n:"聲",r:"開工利是·photographers crew lunch meal·AV測試(with Mason)",c:"#DEB8B8"},
+{n:"速",r:"敬茶統籌+金器利是assist(速)+backup聲",c:"#4A5A23"},
+{n:"盧",r:"金器利是登記·人情登記·suite access對接(女家)·refreshment escalation(女家)·新娘",c:"#7E6B8A"},
+{n:"晴",r:"姊妹·floating venue support·frontline guest greeting·合照/水彩supp",c:"#B5A0BE"},
+{n:"曉婷",r:"姊妹·新娘assistant·front人情收集(with小燕)·簽到",c:"#9BA572"},
+{n:"顏",r:"姊妹·在場支援",c:"#C4928E"},
+{n:"Jonathan",r:"兄弟·新郎side TK(+Mason)·lobby frontline support·guest recogniti",c:"#DEB8B8"},
+{n:"Auntie Grace",r:"男家tea caller(至Grace姨姨組前) + 婚姻監禮人/officiant(licensed lawyer)",c:"#4A5A23"},
+];
+var MAT=[
+{id:"M-01",nm:"化妝全套×3",ow:"MUA Lead",fs:"帶走"},
+{id:"M-02",nm:"裙褂",ow:"新娘",fs:"歸還"},
+{id:"M-02b",nm:"裙褂（兩位媽媽）",ow:"兩位媽媽",fs:"歸還"},
+{id:"M-03",nm:"新娘配飾",ow:"小燕",fs:"收回"},
+{id:"M-04",nm:"新郎西裝（淺灰色）",ow:"Jonathan",fs:"帶走"},
+{id:"M-05",nm:"戒指",ow:"速",fs:"帶走"},
+{id:"M-06",nm:"金器袋",ow:"速＋盧",fs:"帶走"},
+{id:"M-07",nm:"婚紗",ow:"小燕",fs:"帶走"},
+{id:"M-08",nm:"晚裝（第3套look）",ow:"小燕",fs:"帶走"},
+{id:"M-10",nm:"茶具蓋碗×2",ow:"速",fs:"歸還"},
+{id:"M-11",nm:"紅棗蓮子",ow:"速",fs:"用完"},
+{id:"M-12",nm:"跪墊×2",ow:"速",fs:"歸還"},
+{id:"M-13",nm:"紅紙杯×40+",ow:"速",fs:"棄"},
+{id:"M-14",nm:"茶包",ow:"速",fs:"用完"},
+{id:"M-15",nm:"熱水壺",ow:"速",fs:"帶走"},
+{id:"M-16",nm:"紅瓦杯(酒店8隻)",ow:"速",fs:"歸還酒店"},
+{id:"M-20",nm:"遊戲道具",ow:"晴+曉婷+顏（遊戲統籌）",fs:"收回"},
+{id:"M-21",nm:"開門利是",ow:"Jonathan+速",fs:"用完"},
+{id:"M-22",nm:"Label＋文件袋",ow:"速＋盧",fs:"收回"},
+{id:"M-23",nm:"紅傘",ow:"小燕",fs:"收回"},
+{id:"M-25",nm:"紅絲帶",ow:"晴+曉婷+顏（遊戲統籌）",fs:"收回"},
+{id:"M-30",nm:"背景板/指示牌",ow:"Lan",fs:"供應商收"},
+{id:"M-31",nm:"枱號牌",ow:"晴",fs:"收回"},
+{id:"M-32",nm:"AV:HDMI+線",ow:"Mason",fs:"收回"},
+{id:"M-33",nm:"賓客名單×2",ow:"晴",fs:"收回"},
+{id:"M-34",nm:"簽名簿",ow:"晴",fs:"收回"},
+{id:"M-35",nm:"筆＋marker",ow:"晴",fs:"收回"},
+{id:"M-36",nm:"利是箱＋文件袋",ow:"Lan",fs:"Lan帶走"},
+{id:"M-40",nm:"HKID×2(新人)",ow:"Mason（全日保管）",fs:"取回"},
+{id:"M-41",nm:"結婚證書",ow:"Auntie Grace",fs:"帶走"},
+{id:"M-42",nm:"Music USB",ow:"Mason",fs:"收回"},
+{id:"M-43",nm:"誓詞書×2",ow:"小燕",fs:"收回"},
+{id:"M-44",nm:"簽署筆",ow:"Mason",fs:"收回"},
+{id:"M-45",nm:"蛋糕刀",ow:"樓面經理",fs:"酒店收"},
+{id:"M-46",nm:"結婚蛋糕（mock）",ow:"供應商送",fs:"—"},
+{id:"M-50",nm:"水彩畫家用品",ow:"畫家",fs:"帶走"},
+{id:"M-51",nm:"開工利是＋vendor利是",ow:"聲",fs:"派完"},
+{id:"M-60",nm:"HKID×2(爸爸/證人)",ow:"Mason（全日保管）",fs:"取回"},
+{id:"M-70",nm:"MacBook/播放laptop",ow:"Mason",fs:"收回"},
+{id:"M-71",nm:"Canapés(6 dozen)",ow:"Lan",fs:"食完"},
+{id:"M-72",nm:"盒裝果汁(自備)",ow:"新娘媽媽",fs:"飲完"},
+{id:"M-73",nm:"紙巾（多包）",ow:"小燕",fs:"用完"},
+{id:"M-80",nm:"真花球（拍照用）",ow:"晴",fs:"帶走"},
+{id:"M-81",nm:"假花球（早上玩＋拋花球用）",ow:"晴",fs:"拋出"},
+{id:"M-82",nm:"Swarovski簽署筆×2",ow:"Lan",fs:"收回"},
+];
+var GAM=[
+{n:"",nm:"紅絲帶剪綵",hw:"剪紅絲帶",tm:"3",ow:"Jonathan+速"},
+{n:"1",nm:"開門利是",hw:"negotiate",tm:"5",ow:"Jonathan+速"},
+{n:"2",nm:"遊戲A（TBD）",hw:"TBD",tm:"8",ow:"晴+曉婷+顏（遊戲統籌）"},
+{n:"3",nm:"愛的宣言",hw:"表白",tm:"3",ow:"新郎"},
+{n:"",nm:"總時間：",hw:"",tm:"19",ow:""},
+];var lookC={1:"#C0392B",2:"#B5A0BE",3:"#9BA572"};
+var tyI={ctrl:"⛔",anchor:"▲",crit:"★",flex:"○",task:"—",prep:"○",rest:"☕",photo:"📷",pend:"?"};
+var state={tab:"runbook",filter:"全部",fontSize:"m",collapsed:{},scroll:{}};
+try{var sv=sessionStorage.getItem("wops4");if(sv)state=JSON.parse(sv);}catch(e){}
+function saveState(){try{state.scroll[state.tab]=window.scrollY;sessionStorage.setItem("wops4",JSON.stringify(state));}catch(e){}}
+function toMin(t){if(!t||t==="?"||t==="—")return null;var p=t.split(":");if(p.length!==2)return null;var v=parseInt(p[0])*60+parseInt(p[1]);return isNaN(v)?null:v;}
+function fmtCd(d){var a=Math.abs(d),h=Math.floor(a/60),m=a%60;return(h?h+"h ":"")+m+"min";}
+function getNowMins(){var n=new Date();return n.getHours()*60+n.getMinutes();}
+var $=document.getElementById.bind(document);
+var wrap=$("content-wrap"),stickyEl=$("sticky-phase");
+var phaseGroups=[],evNodes=[],timeLineEl=null,lastOpenEv=null;
+
+function updateTimeLine(mins){
+  if(!timeLineEl||state.tab!=="runbook"){if(timeLineEl)timeLineEl.style.display="none";return;}
+  var lastAbove=null;
+  for(var i=0;i<evNodes.length;i++){var el=evNodes[i];if(el.classList.contains("hidden"))continue;var sm=parseInt(el.dataset.startMin);if(!isNaN(sm)&&sm<=mins)lastAbove=el;}
+  if(lastAbove&&lastAbove.offsetParent!==null){timeLineEl.style.display="block";var r=lastAbove.getBoundingClientRect(),pr=timeLineEl.parentElement.getBoundingClientRect();timeLineEl.style.top=(r.bottom-pr.top)+"px";}
+  else{timeLineEl.style.display="none";}
+}
+
+var MARCH=12*60+15,lastClockMin=-1;
+function updateClock(){
+  var now=new Date(),h=String(now.getHours()).padStart(2,"0"),m=String(now.getMinutes()).padStart(2,"0"),se=String(now.getSeconds()).padStart(2,"0");
+  $("clock").textContent=h+":"+m+":"+se;
+  var mins=getNowMins(),diff=MARCH-mins;
+  $("march-cd").textContent=diff>0?"距離進場: "+fmtCd(diff):diff===0?"🌸 進場時間！":"已進場 "+fmtCd(-diff);
+  var phase=mins<495?"早上準備":mins<525?"接新娘":mins<645?"敬茶":mins<690?"過渡":mins<930?"迎賓＋午宴":"收場";
+  $("phase-now").textContent=phase;
+  if(mins!==lastClockMin){lastClockMin=mins;requestAnimationFrame(function(){updateTimeLine(mins);});}
+}
+setInterval(updateClock,1000);updateClock();
+
+// === TABS ===
+var tabDefs=[{id:"runbook",label:"執行總表"},{id:"tea",label:"敬茶"},{id:"photo",label:"合照"},{id:"av",label:"AV Cue"},{id:"contacts",label:"人員"},{id:"materials",label:"物資"},{id:"games",label:"遊戲"}];
+var tabsEl=$("tabs");
+tabDefs.forEach(function(td){var t=document.createElement("div");t.className="tab"+(state.tab===td.id?" active":"");t.dataset.tab=td.id;t.textContent=td.label;t.onclick=function(){switchTab(td.id);};tabsEl.appendChild(t);});
+function switchTab(id){saveState();state.tab=id;document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("active",t.dataset.tab===id);});document.querySelectorAll(".page").forEach(function(p){p.classList.toggle("active",p.id==="page-"+id);});$("filter-bar").classList.toggle("show",id==="runbook");if(id!=="runbook")stickyEl.classList.remove("vis");saveState();var sy=state.scroll[id]||0;setTimeout(function(){window.scrollTo(0,sy);},50);}
+
+// Swipe
+var tx0=0,ty0=0,swipeOK=true;
+document.addEventListener("touchstart",function(e){swipeOK=!e.target.closest(".filter-bar,.tabs,.search-bar,#mat-filter-bar");tx0=e.touches[0].clientX;ty0=e.touches[0].clientY;},{passive:true});
+document.addEventListener("touchend",function(e){if(!swipeOK)return;var dx=e.changedTouches[0].clientX-tx0,dy=e.changedTouches[0].clientY-ty0;if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5){var idx=tabDefs.findIndex(function(t){return t.id===state.tab;});if(dx<0&&idx<tabDefs.length-1)switchTab(tabDefs[idx+1].id);else if(dx>0&&idx>0)switchTab(tabDefs[idx-1].id);}},{passive:true});
+
+// Search
+var searchBar=$("search-bar"),searchInput=$("search-input");
+$("btn-search").onclick=function(){searchBar.classList.toggle("show");if(searchBar.classList.contains("show"))searchInput.focus();else{searchInput.value="";doSearch("");}};
+searchInput.oninput=function(){doSearch(this.value);};
+function doSearch(q){q=q.toLowerCase();var page=document.querySelector(".page.active");if(!page)return;page.querySelectorAll(".ev,.tea-row,.photo-row,.av-row,.contact,.game-row,.mat-row").forEach(function(el){if(!q){el.classList.remove("hidden");return;}el.classList.toggle("hidden",el.textContent.toLowerCase().indexOf(q)===-1);});}
+
+// Font size
+var sizes=["s","m","l","xl"],sizeIdx=Math.max(0,sizes.indexOf(state.fontSize));
+document.body.className="fs-"+sizes[sizeIdx];
+$("btn-font").onclick=function(){sizeIdx=(sizeIdx+1)%sizes.length;document.body.className="fs-"+sizes[sizeIdx];state.fontSize=sizes[sizeIdx];saveState();};
+
+// Filter
+var owners=["全部","Lan","Mason","小燕","匡","Kenneth","聲","速","盧","晴","曉婷","Jonathan","Auntie Grace","攝影師","新郎","新娘"];
+var fb=$("filter-bar");
+owners.forEach(function(o){var b=document.createElement("span");b.className="fbtn"+(state.filter===o?" active":"");b.textContent=o;b.onclick=function(){document.querySelectorAll("#filter-bar .fbtn").forEach(function(x){x.classList.remove("active");});b.classList.add("active");state.filter=o;filterRB();saveState();};fb.appendChild(b);});
+function filterRB(){var f=state.filter;evNodes.forEach(function(el){if(f==="全部"){el.classList.remove("hidden");return;}el.classList.toggle("hidden",(el.dataset.owner||"").indexOf(f)===-1);});phaseGroups.forEach(function(pg){var vis=pg.body.querySelectorAll(".ev:not(.hidden)").length>0;pg.grp.style.display=f==="全部"||vis?"":"none";});stickyEl.classList.remove("vis");}
+
+// === BUILD RUNBOOK ===
+var rbPage=document.createElement("div");rbPage.id="page-runbook";rbPage.className="page"+(state.tab==="runbook"?" active":"");rbPage.style.position="relative";
+var untypedIdx=0;
+
+RB.forEach(function(ev){
+  if(ev.p){
+    var wrap=document.createElement("div");
+    wrap.className="phase-wrap"+(state.collapsed[ev.p]?" closed":"");
+    wrap.dataset.phase=ev.p;
+    var hdr=document.createElement("div");
+    hdr.className="phase-hdr";
+    hdr.innerHTML=ev.p+'<span class="arrow">▼</span>';
+    var body=document.createElement("div");
+    body.className="phase-body";
+    hdr.onclick=function(){wrap.classList.toggle("closed");state.collapsed[ev.p]=wrap.classList.contains("closed");saveState();};
+    wrap.appendChild(hdr);wrap.appendChild(body);rbPage.appendChild(wrap);
+    phaseGroups.push({hdr:hdr,grp:wrap,body:body,phase:ev.p});
+    untypedIdx=0;return;
+  }
+  var ty=ev.ty,isCtrl=ty==="ctrl",lk=ev.lk?lookC[ev.lk]:null;
+  var dotColor=isCtrl?"#FFF":ty==="anchor"?"#8B7328":ty==="crit"?"#C0392B":ty==="photo"?"#9BA572":ty==="pend"?"#C4928E":lk||"#B5AD9E";if(lk)dotColor=lk;
+  var div=document.createElement("div");div.className="ev";div.dataset.type=ty;div.dataset.owner=ev.ao||ev.ow||"";div.dataset.start=ev.s||"";div.dataset.end=ev.e||"";if(ev.s&&ev.s!=="?")div.dataset.startMin=toMin(ev.s);
+  if(!["ctrl","anchor","crit","flex","rest","pend","photo"].includes(ty)){untypedIdx++;if(untypedIdx%2===0)div.classList.add("alt");}
+  var tCl=isCtrl?" ctrl":ty==="anchor"?" anchor":ty==="pend"?" pend":"";
+  var showEnd=ev.e&&ev.e!==ev.s&&!isCtrl&&ty!=="pend";
+  var html='<div class="t'+tCl+'">'+(ev.s||"?")+'</div><div class="dot" style="background:'+dotColor+'"></div><div class="body"><div class="task">'+(tyI[ty]||"—")+" "+ev.tk+'</div>';
+  if(ev.ow||ev.lo)html+='<div class="meta">'+(ev.ow||"")+(ev.lo?" · "+ev.lo:"")+(ev.tr?" · "+ev.tr:"")+'</div>';
+  if(ev.nt)html+='<div class="detail">'+ev.nt+'</div>';
+  html+='<div class="od-list"></div>';
+  html+='<div class="cd"></div></div>';
+  if(showEnd)html+='<div class="end-t">→'+ev.e+'</div>';
+  div.innerHTML=html;
+  if(ev.od&&ev.od.length>0){var odEl=div.querySelector(".od-list");ev.od.forEach(function(od){odEl.innerHTML+='<div class="od-item">'+od.t+' <span class="od-ow">'+od.o+'</span></div>';});}
+  evNodes.push(div);
+  var last=phaseGroups[phaseGroups.length-1];if(last)last.body.appendChild(div);else rbPage.appendChild(div);
+});
+
+// Single-tap toggle: note + OD + countdown together
+rbPage.addEventListener("click",function(e){
+  var div=e.target.closest(".ev");if(!div)return;
+  if(lastOpenEv&&lastOpenEv!==div){
+    var od2=lastOpenEv.querySelector(".detail");if(od2)od2.classList.remove("show");
+    var oc2=lastOpenEv.querySelector(".od-list");if(oc2)oc2.classList.remove("show");
+    var cd2=lastOpenEv.querySelector(".cd");if(cd2)cd2.classList.remove("show");
+  }
+  var d=div.querySelector(".detail"),odl=div.querySelector(".od-list"),cd=div.querySelector(".cd");
+  var isOpen=d&&d.classList.contains("show");
+  if(isOpen){
+    if(d)d.classList.remove("show");if(odl)odl.classList.remove("show");if(cd)cd.classList.remove("show");
+  }else{
+    if(d)d.classList.add("show");
+    if(odl&&odl.innerHTML.trim())odl.classList.add("show");
+    if(cd){var sm=parseInt(div.dataset.startMin);if(!isNaN(sm)){var mins=getNowMins(),diff=sm-mins;cd.textContent=diff>0?"距離此任務: "+fmtCd(diff):diff===0?"⏰ 正在進行":"已過 "+fmtCd(-diff);cd.classList.add("show");}}
+  }
+  lastOpenEv=div;
+});
+
+timeLineEl=document.createElement("div");timeLineEl.className="time-line";timeLineEl.style.display="none";rbPage.appendChild(timeLineEl);wrap.appendChild(rbPage);
+
+// Sticky phase
+var visiblePhases=new Set();
+var phaseObserver=new IntersectionObserver(function(entries){entries.forEach(function(entry){var pn=entry.target.dataset.phase;if(entry.isIntersecting)visiblePhases.add(pn);else visiblePhases.delete(pn);});if(state.tab!=="runbook"||state.filter!=="全部"){stickyEl.classList.remove("vis");return;}var last="";phaseGroups.forEach(function(pg){if(!visiblePhases.has(pg.phase)&&pg.grp.getBoundingClientRect().top<0)last=pg.phase;});if(last){stickyEl.textContent=last;stickyEl.classList.add("vis");}else{stickyEl.classList.remove("vis");}},{threshold:0});
+phaseGroups.forEach(function(pg){phaseObserver.observe(pg.grp);});
+
+var scrollTimer=null;window.addEventListener("scroll",function(){clearTimeout(scrollTimer);scrollTimer=setTimeout(function(){saveState();requestAnimationFrame(function(){updateTimeLine(getNowMins());});},150);},{passive:true});
+filterRB();
+
+// === TEA ===
+var teaDone={},photoDone={};
+try{var td2=sessionStorage.getItem("wops_tea");if(td2)teaDone=JSON.parse(td2);}catch(e){}
+try{var pd2=sessionStorage.getItem("wops_photo");if(pd2)photoDone=JSON.parse(pd2);}catch(e){}
+function saveTeaDone(){try{sessionStorage.setItem("wops_tea",JSON.stringify(teaDone));}catch(e){}}
+function savePhotoDone(){try{sessionStorage.setItem("wops_photo",JSON.stringify(photoDone));}catch(e){}}
+
+var teaPage=document.createElement("div");teaPage.id="page-tea";teaPage.className="page"+(state.tab==="tea"?" active":"");
+
+// Choreography header
+var choreoDiv=document.createElement("div");choreoDiv.style.cssText="padding:8px 16px;background:var(--ivory);border-bottom:1px solid var(--border);font-size:calc(var(--fs) - 3px);color:var(--text);line-height:1.7";
+TEA_CHOREO.forEach(function(line){
+  var isHeader=line.indexOf("▸")===0;
+  var p=document.createElement("div");p.textContent=line;
+  if(isHeader)p.style.cssText="font-weight:600;margin-top:6px;color:var(--olive)";
+  choreoDiv.appendChild(p);
+});
+teaPage.appendChild(choreoDiv);
+
+function addTeaSec(title,rows,bg,prefix){var h=document.createElement("div");h.className="tea-section";h.style.background=bg;h.textContent=title;teaPage.appendChild(h);rows.forEach(function(r){var key=prefix+r.seq;var isDone=teaDone[key]||false;var d=document.createElement("div");d.className="tea-row"+(r.tier==="T1"?" t1":"")+(isDone?" done":"");d.dataset.key=key;d.innerHTML='<div class="check'+(isDone?" checked":"")+'">'+( isDone?"✓":"")+'</div><div class="seq">'+r.seq+'</div><div class="name">'+r.name+(r.note?'<div class="tnote">'+r.note+'</div>':'')+'</div><div class="cups">'+r.cups+'杯</div><div class="caller">'+r.caller+'</div>';teaPage.appendChild(d);});}
+teaPage.addEventListener("click",function(e){var row=e.target.closest(".tea-row");if(!row)return;var key=row.dataset.key;if(!key)return;teaDone[key]=!teaDone[key];row.classList.toggle("done",teaDone[key]);var ck=row.querySelector(".check");if(ck){ck.classList.toggle("checked",teaDone[key]);ck.textContent=teaDone[key]?"✓":"";}saveTeaDone();});
+
+addTeaSec("女家敬茶（5組·~30min·caller=匡·TK=小燕）",TEA_B,"#C4928E","B");
+addTeaSec("男家敬茶（10組·~55min·Grace→匡·TK=Jonathan）",TEA_G,"#4A5A23","G");
+addTeaSec("補敬茶（固定3組·上菜後·caller=匡）",TEA_S,"#8B7399","S");
+wrap.appendChild(teaPage);
+
+// === PHOTO ===
+var photoPage=document.createElement("div");photoPage.id="page-photo";photoPage.className="page"+(state.tab==="photo"?" active":"");
+photoPage.innerHTML='<div class="sec-hdr">合照排序 · callable waves · MC匡+Kenneth · R1=長輩先 R2=朋友</div>';
+PHOTO.forEach(function(p){var key="P"+p.n;var isDone=photoDone[key]||false;var d=document.createElement("div");d.className="photo-row"+(isDone?" done":"");d.dataset.key=key;d.innerHTML='<div class="wave '+p.w.toLowerCase()+'">'+p.n+'</div><div class="info"><div class="group">'+p.g+'</div><div class="pmeta">'+p.sz+'人'+(p.el?' · 長輩':'')+(p.lv?' · 可能早走':'')+'</div></div><div class="check'+(isDone?" checked":"")+'">'+( isDone?"✓":"")+'</div>';photoPage.appendChild(d);});
+photoPage.addEventListener("click",function(e){var row=e.target.closest(".photo-row");if(!row)return;var key=row.dataset.key;if(!key)return;photoDone[key]=!photoDone[key];row.classList.toggle("done",photoDone[key]);var ck=row.querySelector(".check");if(ck){ck.classList.toggle("checked",photoDone[key]);ck.textContent=photoDone[key]?"✓":"";}savePhotoDone();});
+wrap.appendChild(photoPage);
+
+// === AV ===
+var avPage=document.createElement("div");avPage.id="page-av";avPage.className="page"+(state.tab==="av"?" active":"");
+avPage.innerHTML='<div class="sec-hdr">AV Cue · 雙進場 · 2 wireless mic + projector · Library=hotel instrumental only</div>';
+AV.forEach(function(a){var d=document.createElement("div");d.className="av-row";d.innerHTML='<div class="cue">'+a.c+'</div><div class="seg"><div class="stitle">'+a.s+'</div><div class="trigger">'+a.t+' · '+a.d+' · '+a.o+'</div></div>';avPage.appendChild(d);});
+wrap.appendChild(avPage);
+
+// === CONTACTS ===
+var conPage=document.createElement("div");conPage.id="page-contacts";conPage.className="page"+(state.tab==="contacts"?" active":"");
+conPage.innerHTML='<div class="sec-hdr">人員 · Mason→Lan→各崗 · 酒店contact限Lan/Mason/小燕</div>';
+CON.forEach(function(ct){var d=document.createElement("div");d.className="contact";d.innerHTML='<div class="avatar" style="background:'+ct.c+'">'+ct.n.charAt(0)+'</div><div class="cinfo"><div class="cname">'+ct.n+'</div><div class="crole">'+ct.r+'</div></div>';conPage.appendChild(d);});
+wrap.appendChild(conPage);
+
+// === MATERIALS ===
+var matDone={};
+try{var md3=sessionStorage.getItem("wops_mat");if(md3)matDone=JSON.parse(md3);}catch(e){}
+function saveMatDone(){try{sessionStorage.setItem("wops_mat",JSON.stringify(matDone));}catch(e){}}
+
+var matPage=document.createElement("div");matPage.id="page-materials";matPage.className="page"+(state.tab==="materials"?" active":"");
+matPage.innerHTML='<div class="sec-hdr">物資追蹤 · owner→final state · tap=確認</div>';
+
+var matFb=document.createElement("div");matFb.className="filter-bar show";matFb.id="mat-filter-bar";matFb.style.cssText="padding:6px 16px;border-bottom:1px solid var(--border);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;display:block";
+var matFilterActive="全部";
+try{var mfa2=sessionStorage.getItem("wops_mf");if(mfa2)matFilterActive=mfa2;}catch(e){}
+function saveMF(){try{sessionStorage.setItem("wops_mf",matFilterActive);}catch(e){}}
+owners.forEach(function(o){var b=document.createElement("span");b.className="fbtn"+(matFilterActive===o?" active":"");b.textContent=o;b.onclick=function(){matFb.querySelectorAll(".fbtn").forEach(function(x){x.classList.remove("active");});b.classList.add("active");matFilterActive=o;filterMat();saveMF();};matFb.appendChild(b);});
+matPage.appendChild(matFb);
+
+var matNodes=[];
+MAT.forEach(function(m){var key=m.id;var isDone=matDone[key]||false;var d=document.createElement("div");d.className="mat-row"+(isDone?" done":"");d.dataset.key=key;d.dataset.owner=m.ow;var fsCl=["帶走","收回","取回","Lan帶走"].indexOf(m.fs)>=0?"keep":["用完","棄","拋出","派完","飲完","食完"].indexOf(m.fs)>=0?"gone":"ret";d.innerHTML='<div class="check'+(isDone?" checked":"")+'">'+( isDone?"✓":"")+'</div><div class="mid">'+m.id+'</div><div class="minfo"><div class="mnm">'+m.nm+'</div><div class="mow">'+m.ow+'</div></div><div class="mfs '+fsCl+'">'+m.fs+'</div>';matPage.appendChild(d);matNodes.push(d);});
+matPage.addEventListener("click",function(e){var row=e.target.closest(".mat-row");if(!row)return;var key=row.dataset.key;if(!key)return;matDone[key]=!matDone[key];row.classList.toggle("done",matDone[key]);var ck=row.querySelector(".check");if(ck){ck.classList.toggle("checked",matDone[key]);ck.textContent=matDone[key]?"✓":"";}saveMatDone();});
+function filterMat(){matNodes.forEach(function(el){if(matFilterActive==="全部"){el.classList.remove("hidden");return;}el.classList.toggle("hidden",(el.dataset.owner||"").indexOf(matFilterActive)===-1);});}
+filterMat();
+wrap.appendChild(matPage);
+
+// === GAMES ===
+var gamePage=document.createElement("div");gamePage.id="page-games";gamePage.className="page"+(state.tab==="games"?" active":"");
+gamePage.innerHTML='<div class="sec-hdr">開門遊戲 · ✓20min cap · Mason決策 · 08:45 hard stop</div>';
+GAM.forEach(function(g){var d=document.createElement("div");d.className="game-row";d.innerHTML='<div class="gnum">'+g.n+'</div><div class="ginfo"><div class="gname">'+g.nm+'</div><div class="gtime">'+g.hw+' · '+g.tm+' · '+g.ow+'</div></div>';gamePage.appendChild(d);});
+wrap.appendChild(gamePage);
+
+switchTab(state.tab);
+
+// VERSION label injection
+var dateEl=document.querySelector(".clock .date");
+if(dateEl&&typeof VERSION!=="undefined"){dateEl.textContent="26 APR 2026 · GRAND HYATT POOLHOUSE · "+VERSION;}
+</script></body></html>
